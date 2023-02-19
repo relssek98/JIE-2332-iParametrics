@@ -87,6 +87,11 @@ def write_json_file(data: pd.DataFrame) -> None:
     
     with open("cwcs.json", "w") as output_file:
         output_file.write(json.dumps(list_dicts, cls = NpEncoder))
+
+def create_target_feature(data: pd.DataFrame) -> None:
+    data["TARGET"] = data.loc[:, "HM"] / data.loc[:, "PA"]
+    print(data)
+    return data
         
 def write_unnormalized_json_file(data: pd.DataFrame) -> None:
     list_dicts = []
@@ -102,6 +107,7 @@ def write_unnormalized_json_file(data: pd.DataFrame) -> None:
         curr_dict["DECLARATIONS"] = curr_row["DECLARATIONS"]
         curr_dict["HM"] = curr_row["HM"]
         curr_dict["PA"] = curr_row["PA"]
+        curr_dict["TARGET"] = curr_row["TARGET"]
 
         a = 0
         b = 0
@@ -121,9 +127,12 @@ def main():
     assign_weights(weightages)
     raw_data = get_dataset()
     cleaned_data = remove_NaN(raw_data)
+    cleaned_data = create_target_feature(cleaned_data) 
     write_unnormalized_json_file(cleaned_data)
     normalized_data = normalize_dataset(cleaned_data)
     final_DS = add_cols(normalized_data)
+
+
     write_json_file(final_DS)
 
 if __name__ == "__main__":
